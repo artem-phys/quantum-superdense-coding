@@ -1,6 +1,9 @@
 import random
+import numpy as np
 
 from qiskit import IBMQ, QuantumCircuit, Aer, transpile, QuantumRegister, ClassicalRegister
+
+from mutual_information import mutual_information
 
 
 def superdense_coding_qc(message):
@@ -47,7 +50,9 @@ def qsdc(mes, shots, probs):
     backend = Aer.get_backend('aer_simulator')
     messages_to_sent = random.choices(mes, weights=probs, k=shots)
 
-    result = {message: dict() for message in mes}
+    possible_messages = ['00','01', '10', '11']
+
+    result = {message: dict(zip(possible_messages, [0] * len(possible_messages))) for message in possible_messages}
 
     for message in messages_to_sent:
         qc = superdense_coding_qc(message)
@@ -55,5 +60,9 @@ def qsdc(mes, shots, probs):
         count = next(iter(job.result().get_counts()))
         result[message][count] = result[message].get(count, 0) + 1
 
-    return result
+    counts_matrix = np.array([[count for count in message_results.values()] for message_results in result.values()])
+
+    mut_info = mutual_information(counts_matrix)
+
+    return result, mut_info
 

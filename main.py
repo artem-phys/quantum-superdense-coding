@@ -9,9 +9,9 @@ with open('input.json') as fin:
     shots = input_data['shots']
     probs = input_data['probs']
 
-    result = qsdc(mes, shots, probs)
+    result, mut_info = qsdc(mes, shots, probs)
 
-    print(result)
+    print(result, mut_info)
 
 with open('output.json', 'w') as fout:
-    json.dump({'result': result}, fout)
+    json.dump({'result': result, 'mut_info': mut_info}, fout)
