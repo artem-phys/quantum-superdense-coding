@@ -7,10 +7,10 @@ from mutual_information import mutual_information
 
 
 def superdense_coding_qc(message):
-    alice_reg = QuantumRegister(1, name='Alice')
-    both_reg = QuantumRegister(2, name='Bob')
+    alice_reg = QuantumRegister(1)
+    both_reg = QuantumRegister(2)
 
-    cl_reg = ClassicalRegister(2, name='classical_bits')
+    cl_reg = ClassicalRegister(2)
 
     qc = QuantumCircuit(alice_reg, both_reg, cl_reg)
 
