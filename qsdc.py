@@ -6,13 +6,17 @@ from qiskit import IBMQ, QuantumCircuit, Aer, transpile, QuantumRegister, Classi
 from mutual_information import mutual_information
 
 
-def superdense_coding_qc(message):
+def superdense_coding_qc(message, transfer_qubits=0):
     alice_reg = QuantumRegister(1, name='Alice')
+
+
+    transfer_reg = QuantumRegister(transfer_qubits, name='transfer')
+
     both_reg = QuantumRegister(2, name='Bob')
 
     cl_reg = ClassicalRegister(2, name='classical_bits')
 
-    qc = QuantumCircuit(alice_reg, both_reg, cl_reg)
+    qc = QuantumCircuit(alice_reg, transfer_reg, both_reg, cl_reg)
 
     # Bell pair creation
     qc.h(both_reg[0])
@@ -20,7 +24,12 @@ def superdense_coding_qc(message):
 
     qc.barrier()
 
-    qc.swap(alice_reg[0], both_reg[0])
+    transfer_qs = [transfer_reg[i] for i in range(transfer_qubits - 1, -1, -1)]
+
+    qubits_to_do_swaps = [both_reg[0], *transfer_qs, alice_reg[0]]
+
+    for i in range(len(qubits_to_do_swaps) - 1):
+        qc.swap(qubits_to_do_swaps[i], qubits_to_do_swaps[i + 1])
 
     # Encoding
     if message[0] == "1":
@@ -28,7 +37,8 @@ def superdense_coding_qc(message):
     if message[1] == "1":
         qc.z(alice_reg[0])
 
-    qc.swap(alice_reg[0], both_reg[0])
+    for i in range(len(qubits_to_do_swaps) - 1, 0, -1):
+        qc.swap(qubits_to_do_swaps[i], qubits_to_do_swaps[i - 1])
 
     qc.barrier()
 
@@ -44,7 +54,7 @@ def superdense_coding_qc(message):
     return qc
 
 
-def qsdc(mes, shots, probs):
+def qsdc(mes, shots, probs, transfer_qubits):
 
 
     backend = Aer.get_backend('aer_simulator')
@@ -55,7 +65,7 @@ def qsdc(mes, shots, probs):
     result = {message: dict(zip(possible_messages, [0] * len(possible_messages))) for message in possible_messages}
 
     for message in messages_to_sent:
-        qc = superdense_coding_qc(message)
+        qc = superdense_coding_qc(message, transfer_qubits)
         job = backend.run(transpile(qc, backend), shots=1)
         count = next(iter(job.result().get_counts()))
         result[message][count] = result[message].get(count, 0) + 1

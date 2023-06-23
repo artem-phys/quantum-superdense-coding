@@ -8,8 +8,9 @@ with open('input.json') as fin:
     mes = input_data['mes']
     shots = input_data['shots']
     probs = input_data['probs']
+    transfer_qubits  = input_data['transfer_qubits']
 
-    result, mut_info = qsdc(mes, shots, probs)
+    result, mut_info = qsdc(mes, shots, probs, transfer_qubits)
 
     print(result, mut_info)
 
