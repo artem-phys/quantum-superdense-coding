@@ -1,14 +1,13 @@
 import random
 import numpy as np
 
-from qiskit import IBMQ, QuantumCircuit, Aer, transpile, QuantumRegister, ClassicalRegister
+from qiskit import QuantumCircuit, Aer, transpile, QuantumRegister, ClassicalRegister
 
 from mutual_information import mutual_information
 
 
 def superdense_coding_qc(message, transfer_qubits=0):
     alice_reg = QuantumRegister(1, name='Alice')
-
 
     transfer_reg = QuantumRegister(transfer_qubits, name='transfer')
 
@@ -56,11 +55,10 @@ def superdense_coding_qc(message, transfer_qubits=0):
 
 def qsdc(mes, shots, probs, transfer_qubits):
 
-
     backend = Aer.get_backend('aer_simulator')
     messages_to_sent = random.choices(mes, weights=probs, k=shots)
 
-    possible_messages = ['00','01', '10', '11']
+    possible_messages = ['00', '01', '10', '11']
 
     result = {message: dict(zip(possible_messages, [0] * len(possible_messages))) for message in possible_messages}
 
@@ -75,4 +73,3 @@ def qsdc(mes, shots, probs, transfer_qubits):
     mut_info = mutual_information(counts_matrix)
 
     return result, mut_info
-
