@@ -10,9 +10,12 @@ with open('input.json') as fin:
     probs = input_data['probs']
     transfer_qubits = input_data['transfer_qubits']
 
-    result, mut_info = qsdc(mes, shots, probs, transfer_qubits)
+    result, mut_info, qasm_code = qsdc(mes, shots, probs, transfer_qubits)
 
     print(result, mut_info)
 
 with open('output.json', 'w') as fout:
     json.dump({'result': result, 'mut_info': mut_info}, fout)
+
+with open('superdense_qc.qasm', 'w') as fout2:
+    fout2.write(qasm_code)

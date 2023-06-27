@@ -48,8 +48,6 @@ def superdense_coding_qc(message, transfer_qubits=0):
     qc.measure(both_reg[0], cl_reg[0])
     qc.measure(both_reg[1], cl_reg[1])
 
-    # print(qc.decompose().qasm())
-
     return qc
 
 
@@ -72,4 +70,6 @@ def qsdc(mes, shots, probs, transfer_qubits):
 
     mut_info = mutual_information(counts_matrix)
 
-    return result, mut_info
+    qasm_code = qc.decompose().qasm()
+
+    return result, mut_info, qasm_code
