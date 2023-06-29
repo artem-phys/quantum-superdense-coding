@@ -7,13 +7,13 @@ from mutual_information import mutual_information
 
 
 def superdense_coding_qc(message, transfer_qubits=0):
-    alice_reg = QuantumRegister(1, name='Alice')
+    alice_reg = QuantumRegister(1)
 
-    transfer_reg = QuantumRegister(transfer_qubits, name='transfer')
+    transfer_reg = QuantumRegister(transfer_qubits)
 
-    both_reg = QuantumRegister(2, name='Bob')
+    both_reg = QuantumRegister(2)
 
-    cl_reg = ClassicalRegister(2, name='classical_bits')
+    cl_reg = ClassicalRegister(2)
 
     qc = QuantumCircuit(alice_reg, transfer_reg, both_reg, cl_reg)
 
@@ -51,7 +51,7 @@ def superdense_coding_qc(message, transfer_qubits=0):
     return qc
 
 
-def qsdc(mes, shots, probs, transfer_qubits):
+def qsdc(mes, shots, probs, transfer_qubits, qasm_circs_name_prefix):
 
     backend = Aer.get_backend('aer_simulator')
     messages_to_sent = random.choices(mes, weights=probs, k=shots)
@@ -60,16 +60,24 @@ def qsdc(mes, shots, probs, transfer_qubits):
 
     result = {message: dict(zip(possible_messages, [0] * len(possible_messages))) for message in possible_messages}
 
-    for message in messages_to_sent:
+    for message in possible_messages:
+        num_of_messages = messages_to_sent.count(message)
         qc = superdense_coding_qc(message, transfer_qubits)
-        job = backend.run(transpile(qc, backend), shots=1)
-        count = next(iter(job.result().get_counts()))
-        result[message][count] = result[message].get(count, 0) + 1
+        job = backend.run(transpile(qc, backend), shots=num_of_messages)
+        counts = job.result().get_counts()
+        for outcome in counts:
+            result[message][outcome] += counts[outcome]
+
+        if qasm_circs_name_prefix is not None:
+            qasm_code = qc.decompose().qasm()
+            qasm_fname = qasm_circs_name_prefix + message + ".qasm"
+            with open(qasm_fname, 'w') as fout2:
+                fout2.write(qasm_code)
 
     counts_matrix = np.array([[count for count in message_results.values()] for message_results in result.values()])
 
     mut_info = mutual_information(counts_matrix)
 
-    qasm_code = qc.decompose().qasm()
+    
 
-    return result, mut_info, qasm_code
+    return result, mut_info

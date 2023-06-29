@@ -2,5 +2,6 @@
   "mes": ["00", "01", "10", "11"],
   "shots": 1024,
   "probs": [0.25, 0.25, 0.25, 0.25],
-  "transfer_qubits": 3
+  "transfer_qubits": 3,
+  "qasm_circs_name_prefix": "superdense_qc_"
 }
