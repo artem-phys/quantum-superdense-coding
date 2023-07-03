@@ -2,6 +2,10 @@ import numpy as np
 
 
 def mutual_information(counts_matrix):
+    """
+    :param counts_matrix: Матрица 4 на 4, содержащая результаты полученных Бобом сообщений, в зависимости от изначально передаваемого Алисой
+    :returns: mutual_information: взаимная информация
+    """
 
     pxy = counts_matrix / np.sum(counts_matrix)
     px = np.sum(pxy, axis=1)
